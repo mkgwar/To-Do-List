@@ -6,6 +6,7 @@ function App() {
   const [Task, setTask] = useState("");
   const [isEditable, setisEditable] = useState(false);
   const [EditedTask, setEditedTask] = useState("");
+  const [EditedIndex, setEditedIndex] = useState(-1);
 
   const InputHandler = (e) => {
     setTask(e.target.value);
@@ -24,16 +25,27 @@ function App() {
     setTaskList(TaskList.filter((task, taskIndex) => taskIndex != index));
   };
 
-  const EditTask = (task) => {
+  const EditTask = (task, index) => {
     setisEditable(!isEditable);
     setEditedTask(task);
+    setEditedIndex(index);
   };
 
   const EditHandler = (e) => {
     setEditedTask(e.target.value);
   };
 
-  const UpdateTask = (index) => {};
+  const UpdateTask = (index) => {
+    setTaskList(
+      TaskList.map((task, taskIndex) => {
+        if (taskIndex == index) return EditedTask;
+        else return task;
+      })
+    );
+
+    setisEditable(!isEditable);
+    setEditedIndex(-1);
+  };
 
   return (
     <section>
@@ -53,31 +65,22 @@ function App() {
           TaskList.map((task, index) => {
             return (
               <div className="task" key={index}>
-                {!isEditable ? (
-                  <div className="task-title">{task}</div>
-                ) : (
+                {isEditable && index == EditedIndex ? (
                   <input
                     type="text"
                     value={EditedTask}
                     onChange={EditHandler}
                   ></input>
+                ) : (
+                  <div className="task-title">{task}</div>
                 )}
 
-                {!isEditable ? (
+                {isEditable && index == EditedIndex ? (
                   <>
-                    <button className="edit" onClick={() => EditTask(task)}>
-                      Edit
-                    </button>
                     <button
-                      className="delete"
-                      onClick={() => DeleteTask(index)}
+                      className="update"
+                      onClick={() => UpdateTask(index)}
                     >
-                      Delete
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button className="update" onClick={UpdateTask(index)}>
                       Update
                     </button>
                     <button
@@ -85,6 +88,21 @@ function App() {
                       onClick={() => setisEditable(!isEditable)}
                     >
                       Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="edit"
+                      onClick={() => EditTask(task, index)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="delete"
+                      onClick={() => DeleteTask(index)}
+                    >
+                      Delete
                     </button>
                   </>
                 )}
